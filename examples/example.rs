@@ -1,4 +1,4 @@
-use bevy::{prelude::*, core::FixedTimestep};
+use bevy::{core::FixedTimestep, prelude::*};
 use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates};
 
 fn main() {
@@ -22,17 +22,27 @@ enum States {
 fn setup_states(mut commands: Commands) {
     let mut states = ScheduleStates::new(States::StateA);
 
-    states.add_state(States::StateA);
-    states.on_enter_with_system(States::StateA, enter_state_a);
-    states.on_update_with_system(States::StateA, update_state_a);
-    states.on_update_with_system(States::StateA, change_state_a_to_b);
-    states.on_exit_with_system(States::StateA, exit_state_a);
+    states
+        .with_state_enter(States::StateA)
+        .add_system(enter_state_a);
+    states
+        .with_state_update(States::StateA)
+        .add_system(update_state_a)
+        .add_system(change_state_a_to_b);
+    states
+        .with_state_exit(States::StateA)
+        .add_system(exit_state_a);
 
-    states.add_state(States::StateB);
-    states.on_enter_with_system(States::StateB, enter_state_b);
-    states.on_update_with_system(States::StateB, update_state_b);
-    states.on_update_with_system(States::StateB, change_state_b_to_a);
-    states.on_exit_with_system(States::StateB, exit_state_b);
+    states
+        .with_state_enter(States::StateB)
+        .add_system(enter_state_b);
+    states
+        .with_state_update(States::StateB)
+        .add_system(update_state_b)
+        .add_system(change_state_b_to_a);
+    states
+        .with_state_exit(States::StateB)
+        .add_system(exit_state_b);
 
     commands.insert_resource(NextState::<States>(None));
     commands.insert_resource(states);
@@ -47,11 +57,11 @@ fn enter_state_a() {
 }
 
 fn change_state_a_to_b(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
-  *count += 1;
-  if *count > 2 {
-    next_state.0 = Some(States::StateB);
-    *count = 0;
-  }
+    *count += 1;
+    if *count > 2 {
+        next_state.0 = Some(States::StateB);
+        *count = 0;
+    }
 }
 
 fn exit_state_a() {
@@ -66,13 +76,12 @@ fn enter_state_b() {
     println!("enter state b");
 }
 
-
 fn change_state_b_to_a(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
-  *count += 1;
-  if *count > 2 {
-    next_state.0 = Some(States::StateA);
-    *count = 0;
-  }
+    *count += 1;
+    if *count > 2 {
+        next_state.0 = Some(States::StateA);
+        *count = 0;
+    }
 }
 
 fn exit_state_b() {

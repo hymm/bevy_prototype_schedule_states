@@ -33,7 +33,7 @@ where
         }
     }
 
-    pub fn add_state(&mut self, new_state: S) {
+    fn add_state(&mut self, new_state: S) {
         let mut schedule = Schedule::default();
         schedule.add_stage(StateStage, SystemStage::parallel());
         self.enter.insert(new_state, schedule);
@@ -47,37 +47,38 @@ where
         self.exit.insert(new_state, schedule);
     }
 
-    pub fn on_enter_with_system<Params>(
-        &mut self,
-        state: S,
-        system: impl IntoSystemDescriptor<Params>,
-    ) {
+    pub fn with_state_enter(&mut self, state: S) -> &mut SystemStage {
+        if self.enter.get(&state).is_none() {
+            self.add_state(state);
+        }
         self.enter
             .get_mut(&state)
             .unwrap()
-            .add_system_to_stage(StateStage, system);
+            .get_stage_mut::<SystemStage>(&StateStage)
+            .unwrap()
     }
 
-    pub fn on_update_with_system<Params>(
-        &mut self,
-        state: S,
-        system: impl IntoSystemDescriptor<Params>,
-    ) {
+    pub fn with_state_update(&mut self, state: S) -> &mut SystemStage {
+        if self.update.get(&state).is_none() {
+            self.add_state(state);
+        }
         self.update
             .get_mut(&state)
             .unwrap()
-            .add_system_to_stage(StateStage, system);
+            .get_stage_mut::<SystemStage>(&StateStage)
+            .unwrap()
     }
 
-    pub fn on_exit_with_system<Params>(
-        &mut self,
-        state: S,
-        system: impl IntoSystemDescriptor<Params>,
-    ) {
+    
+    pub fn with_state_exit(&mut self, state: S) -> &mut SystemStage {
+        if self.exit.get(&state).is_none() {
+            self.add_state(state);
+        }
         self.exit
             .get_mut(&state)
             .unwrap()
-            .add_system_to_stage(StateStage, system);
+            .get_stage_mut::<SystemStage>(&StateStage)
+            .unwrap()
     }
 
     pub fn run_update(&mut self, world: &mut World, state: S) {
