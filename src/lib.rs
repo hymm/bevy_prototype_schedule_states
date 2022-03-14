@@ -1,6 +1,6 @@
 use bevy::{
     ecs::schedule::IntoSystemDescriptor,
-    prelude::{Schedule, Stage, StageLabel, SystemStage, World, Mut},
+    prelude::{Mut, Schedule, Stage, StageLabel, SystemStage, World},
     utils::HashMap,
 };
 use std::hash::Hash;
@@ -93,14 +93,13 @@ where
     }
 }
 
-struct NextState<S: Copy>(pub Option<S>);
+pub struct NextState<S: Copy>(pub Option<S>);
 
-pub fn driver<S>(world: &mut World) 
+pub fn driver<S>(world: &mut World)
 where
     S: Eq + Hash + Copy + Send + Sync + 'static,
 {
     world.resource_scope(|world, mut state: Mut<ScheduleStates<S>>| {
-        
         let mut next_state = state.next_state;
         loop {
             if let Some(next_state) = next_state {
@@ -115,17 +114,14 @@ where
             let current_state = state.current_state;
             state.run_update(world, current_state);
 
-            world.resource_scope(|_world, mut n: Mut<Option<NextState<S>>>| {
-                if let Some(n) = &mut *n {
-                    next_state = n.0.take();
-                }
+            world.resource_scope(|_world, mut n: Mut<NextState<S>>| {
+                next_state = n.0.take();
             });
 
             if next_state.is_none() {
                 break;
             }
         }
-        
     });
 }
 
