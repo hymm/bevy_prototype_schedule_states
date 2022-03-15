@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{Mut, Schedule, Stage, StageLabel, SystemStage, World},
+    prelude::{IntoExclusiveSystem, Mut, Schedule, Stage, StageLabel, SystemStage, World},
     utils::HashMap,
 };
 use std::hash::Hash;
@@ -8,8 +8,8 @@ pub struct ScheduleStates<S>
 where
     S: Eq + Hash + Copy + Clone,
 {
-    pub current_state: S,
-    pub next_state: Option<S>,
+    current_state: S,
+    next_state: Option<S>,
     first_run: bool,
     enter: HashMap<S, Schedule>,
     update: HashMap<S, Schedule>,
@@ -32,6 +32,10 @@ where
             update: HashMap::default(),
             exit: HashMap::default(),
         }
+    }
+
+    pub fn get_state(&self) -> S {
+        self.current_state
     }
 
     fn add_state(&mut self, new_state: S) {
@@ -92,6 +96,18 @@ where
     pub fn run_exit(&mut self, world: &mut World, state: S) {
         self.exit.get_mut(&state).unwrap().run(world);
     }
+
+    pub fn add_nested_driver_to_state<T>(&mut self, state: S)
+    where
+        T: Eq + Hash + Copy + Send + Sync + 'static,
+    {
+        self.with_state_enter(state)
+            .add_system(driver_run_enter::<T>.exclusive_system());
+        self.with_state_update(state)
+            .add_system(driver::<T>.exclusive_system());
+        self.with_state_exit(state)
+            .add_system(driver_run_exit::<T>.exclusive_system());
+    }
 }
 
 pub struct NextState<S: Copy>(pub Option<S>);
@@ -112,12 +128,12 @@ where
             if let Some(next_state) = next_state {
                 let current_state = state.current_state;
                 if !state.first_run {
-                  state.run_exit(world, current_state);
+                    state.run_exit(world, current_state);
                 }
                 state.current_state = next_state;
                 state.next_state = None;
                 state.run_enter(world, next_state);
-                
+
                 state.first_run = false;
             }
             let current_state = state.current_state;
@@ -131,5 +147,25 @@ where
                 break;
             }
         }
+    });
+}
+
+pub fn driver_run_enter<S>(world: &mut World)
+where
+    S: Eq + Hash + Copy + Send + Sync + 'static,
+{
+    world.resource_scope(|world, mut state: Mut<ScheduleStates<S>>| {
+        let current_state = state.get_state();
+        state.run_enter(world, current_state);
+    });
+}
+
+pub fn driver_run_exit<S>(world: &mut World)
+where
+    S: Eq + Hash + Copy + Send + Sync + 'static,
+{
+    world.resource_scope(|world, mut state: Mut<ScheduleStates<S>>| {
+        let current_state = state.get_state();
+        state.run_exit(world, current_state);
     });
 }

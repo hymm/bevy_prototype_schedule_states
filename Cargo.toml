@@ -12,3 +12,7 @@ bevy = "0.6"
 [[example]]
 name = "example"
 path = "examples/example.rs"
+
+[[example]]
+name = "nested"
+path = "examples/nested.rs"
