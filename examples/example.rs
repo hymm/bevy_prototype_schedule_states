@@ -1,10 +1,11 @@
 use bevy::{core::FixedTimestep, prelude::*};
-use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates};
+use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates, StatePlugin};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_startup_system(setup_states)
+        .add_plugin(StatePlugin::<States>::default())
+        .insert_resource(setup_states())
         .add_system(
             driver::<States>
                 .exclusive_system()
@@ -19,7 +20,7 @@ enum States {
     StateB,
 }
 
-fn setup_states(mut commands: Commands) {
+fn setup_states() -> ScheduleStates<States> {
     let mut states = ScheduleStates::new(States::StateA);
 
     states
@@ -44,8 +45,7 @@ fn setup_states(mut commands: Commands) {
         .with_state_exit(States::StateB)
         .add_system(exit_state_b);
 
-    commands.insert_resource(NextState::<States>(None));
-    commands.insert_resource(states);
+    states
 }
 
 fn update_state_a() {
