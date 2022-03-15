@@ -56,10 +56,12 @@ fn enter_state_a() {
     println!("enter state a");
 }
 
+// change state every third run of this system
+// this shows that exit/enter/update all run on the same tick
 fn change_state_a_to_b(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
     *count += 1;
     if *count > 2 {
-        next_state.0 = Some(States::StateB);
+        next_state.set(States::StateB);
         *count = 0;
     }
 }
@@ -79,7 +81,7 @@ fn enter_state_b() {
 fn change_state_b_to_a(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
     *count += 1;
     if *count > 2 {
-        next_state.0 = Some(States::StateA);
+        next_state.set(States::StateA);
         *count = 0;
     }
 }
