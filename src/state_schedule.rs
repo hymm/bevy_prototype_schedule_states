@@ -110,7 +110,13 @@ where
     }
 }
 
-pub struct NextState<S: Copy>(pub Option<S>);
+pub struct NextState<S: Copy>(Option<S>);
+
+impl<S: Copy> Default for NextState<S> {
+    fn default() -> Self {
+        NextState(None)
+    }
+}
 
 impl<S: Copy> NextState<S> {
     pub fn set(&mut self, next_state: S) {

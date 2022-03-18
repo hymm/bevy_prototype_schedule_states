@@ -19,6 +19,6 @@ where
     S: Send + Sync + 'static + Eq + Hash + Copy + Clone,
 {
     fn build(&self, app: &mut App) {
-        app.insert_resource(NextState::<S>(None));
+        app.insert_resource(NextState::<S>::default());
     }
 }
