@@ -34,7 +34,7 @@ where
         }
     }
 
-    pub fn get_state(&self) -> S {
+    pub fn current_state(&self) -> S {
         self.current_state
     }
 
@@ -155,7 +155,7 @@ where
     S: Eq + Hash + Copy + Send + Sync + 'static,
 {
     world.resource_scope(|world, mut state: Mut<ScheduleStates<S>>| {
-        let current_state = state.get_state();
+        let current_state = state.current_state();
         state.run_enter(world, current_state);
     });
 }
@@ -165,7 +165,7 @@ where
     S: Eq + Hash + Copy + Send + Sync + 'static,
 {
     world.resource_scope(|world, mut state: Mut<ScheduleStates<S>>| {
-        let current_state = state.get_state();
+        let current_state = state.current_state();
         state.run_exit(world, current_state);
     });
 }

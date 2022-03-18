@@ -82,7 +82,7 @@ fn toggle_playing(
 ) {
     if input.just_pressed(KeyCode::Space) {
         input.clear_just_pressed(KeyCode::Space);
-        match current_state.get_state() {
+        match current_state.current_state() {
             GameState::StartMenu => game_state.set(GameState::Playing),
             GameState::Playing => game_state.set(GameState::StartMenu),
         }
@@ -97,7 +97,7 @@ fn toggle_paused(
     if input.just_pressed(KeyCode::Escape) {
         input.clear_just_pressed(KeyCode::Escape);
         println!("blah");
-        match current_state.get_state() {
+        match current_state.current_state() {
             PlayingState::Running => game_state.set(PlayingState::Paused),
             PlayingState::Paused => game_state.set(PlayingState::Running),
         }
