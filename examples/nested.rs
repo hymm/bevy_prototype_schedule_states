@@ -8,15 +8,16 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugin(StatePlugin::<GameState>::default())
-        .insert_resource(get_game_state_schedules())
+        .insert_resource(build_game_states())
         .add_plugin(StatePlugin::<PlayingState>::default())
-        .insert_resource(get_playing_state_schedules())
+        .insert_resource(build_playing_states())
         .add_system(
             driver::<GameState>
                 .exclusive_system()
                 .with_run_criteria(FixedTimestep::step(1.0)),
         )
         .add_system(toggle_playing)
+        .add_system(toggle_paused)
         .run();
 }
 
@@ -32,7 +33,7 @@ enum PlayingState {
     Paused,
 }
 
-fn get_game_state_schedules() -> ScheduleStates<GameState> {
+fn build_game_states() -> ScheduleStates<GameState> {
     let mut states = ScheduleStates::new(GameState::StartMenu);
     states
         .with_state_update(GameState::StartMenu)
@@ -47,7 +48,7 @@ fn get_game_state_schedules() -> ScheduleStates<GameState> {
     states
 }
 
-fn get_playing_state_schedules() -> ScheduleStates<PlayingState> {
+fn build_playing_states() -> ScheduleStates<PlayingState> {
     let mut states = ScheduleStates::new(PlayingState::Running);
     states
         .with_state_update(PlayingState::Running)
@@ -75,11 +76,12 @@ fn while_running() {
 }
 
 fn toggle_playing(
-    input: Res<Input<KeyCode>>,
+    mut input: ResMut<Input<KeyCode>>,
     mut game_state: ResMut<NextState<GameState>>,
     current_state: Res<ScheduleStates<GameState>>,
 ) {
     if input.just_pressed(KeyCode::Space) {
+        input.clear_just_pressed(KeyCode::Space);
         match current_state.get_state() {
             GameState::StartMenu => game_state.set(GameState::Playing),
             GameState::Playing => game_state.set(GameState::StartMenu),
@@ -88,11 +90,12 @@ fn toggle_playing(
 }
 
 fn toggle_paused(
-    input: Res<Input<KeyCode>>,
+    mut input: ResMut<Input<KeyCode>>,
     mut game_state: ResMut<NextState<PlayingState>>,
     current_state: Res<ScheduleStates<PlayingState>>,
 ) {
     if input.just_pressed(KeyCode::Escape) {
+        input.clear_just_pressed(KeyCode::Escape);
         println!("blah");
         match current_state.get_state() {
             PlayingState::Running => game_state.set(PlayingState::Paused),
