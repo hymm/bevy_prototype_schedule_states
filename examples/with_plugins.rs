@@ -1,7 +1,8 @@
+/// This example shows that the builders are compatible with plugins
+
 use bevy::prelude::{App, Plugin};
 use bevy_prototype_schedule_states::{AppStateHelpers, StatePlugin};
-// TODO: add example of states with other plugins
-// It is a common pattern in bevy to organize game code into separate plugins.
+
 fn main() {
     App::new()
         .add_plugin(StatePlugin::new(States::StateA))

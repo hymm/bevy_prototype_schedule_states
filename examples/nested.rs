@@ -1,21 +1,32 @@
-/// toggle between `StartMenu` state and `Playing` state with spacebar
+/// toggle between `StartMenu` state and `Playing` state with space bar
 /// while in the `Playing` state toggle between running and paused with the escape key
 /// The bevy window will need focus to detect the keystrokes, but output is to the console.
 use bevy::{core::FixedTimestep, prelude::*};
-use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates, StatePlugin};
+use bevy_prototype_schedule_states::{
+    driver, AppStateHelpers, NextState, ScheduleStates, StatePlugin,
+};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        // configure GameState
         .add_plugin(StatePlugin::new(GameState::StartMenu))
-        .insert_resource(get_game_state_schedules())
-        .add_plugin(StatePlugin::new(PlayingState::Running))
-        .insert_resource(get_playing_state_schedules())
+        .add_system_to_state_update(GameState::StartMenu, || println!("start"))
+        .add_system_to_state_update(GameState::Playing, || println!("playing"))
         .add_system(
             driver::<GameState>
                 .exclusive_system()
                 .with_run_criteria(FixedTimestep::step(1.0)),
         )
+        // configure PlayingState
+        .add_plugin(StatePlugin::new(PlayingState::Running))
+        .add_system_to_state_update(PlayingState::Running, || println!("running"))
+        .add_system_to_state_update(PlayingState::Paused, || println!("paused"))
+        // `add_nested_driver_to_state` adds the driver to the update state
+        // and adds systems that fire on enter and on exit for the current `PlayingState`
+        // when `GameState::Playing` is entered or exited respectively
+        .add_nested_driver_to_state::<GameState, PlayingState>(GameState::Playing)
+        // add some input detection systems to toggle state
         .add_system(toggle_playing)
         .add_system(toggle_paused)
         .run();
@@ -31,48 +42,6 @@ enum GameState {
 enum PlayingState {
     Running,
     Paused,
-}
-
-fn build_game_states() -> ScheduleStates<GameState> {
-    let mut states = ScheduleStates::new(GameState::StartMenu);
-    states
-        .with_state_update(GameState::StartMenu)
-        .add_system(while_start);
-    states
-        .with_state_update(GameState::Playing)
-        .add_system(while_playing)
-        .add_system(toggle_paused);
-
-    states.add_nested_driver_to_state::<PlayingState>(GameState::Playing);
-
-    states
-}
-
-fn build_playing_states() -> ScheduleStates<PlayingState> {
-    let mut states = ScheduleStates::new(PlayingState::Running);
-    states
-        .with_state_update(PlayingState::Running)
-        .add_system(while_running);
-    states
-        .with_state_update(PlayingState::Paused)
-        .add_system(while_paused);
-    states
-}
-
-fn while_playing() {
-    println!("playing");
-}
-
-fn while_start() {
-    println!("start");
-}
-
-fn while_paused() {
-    println!("paused");
-}
-
-fn while_running() {
-    println!("running");
 }
 
 fn toggle_playing(
@@ -96,7 +65,6 @@ fn toggle_paused(
 ) {
     if input.just_pressed(KeyCode::Escape) {
         input.clear_just_pressed(KeyCode::Escape);
-        println!("blah");
         match current_state.current_state() {
             PlayingState::Running => game_state.set(PlayingState::Paused),
             PlayingState::Paused => game_state.set(PlayingState::Running),

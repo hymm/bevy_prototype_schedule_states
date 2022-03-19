@@ -97,6 +97,8 @@ where
         self.exit.get_mut(&state).unwrap().run(world);
     }
 
+
+    /// add driver for states `T` to state `S`
     pub fn add_nested_driver_to_state<T>(&mut self, state: S)
     where
         T: Eq + Hash + Copy + Send + Sync + 'static,

@@ -1,11 +1,33 @@
 use bevy::{core::FixedTimestep, prelude::*};
-use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates, StatePlugin};
+use bevy_prototype_schedule_states::{driver, AppStateHelpers, NextState, StatePlugin};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        // adding the `StatePlugin` adds a `ScheduleStates<States>` resource and
+        // a `NextState<States>` resource.
+        // make sure you add the `StatePlugin` before trying to use the builder methods
+        // on the state.  Failing to do so will cause a panic as the `ScheduleStates`
+        // resource will not be available
         .add_plugin(StatePlugin::<States>::new(States::StateA))
-        .insert_resource(setup_states())
+        // importing the `AppStateHelpers` trait adds builder methods on app to
+        // configure running systems on the states
+        .add_system_to_state_enter(States::StateA, || println!("enter state a"))
+        .add_system_set_to_state_update(
+            States::StateA,
+            SystemSet::new()
+                .with_system(|| println!("update state a"))
+                .with_system(change_state_a_to_b),
+        )
+        .add_system_to_state_exit(States::StateA, || println!("exit state a"))
+        .add_system_to_state_enter(States::StateB, || println!("enter state b"))
+        .add_system_set_to_state_update(
+            States::StateB,
+            SystemSet::new()
+                .with_system(|| println!("update state b"))
+                .with_system(change_state_b_to_a),
+        )
+        .add_system_to_state_exit(States::StateB, || println!("exit state b"))
         .add_system(
             driver::<States>
                 .exclusive_system()
@@ -20,62 +42,18 @@ enum States {
     StateB,
 }
 
-fn setup_states() -> ScheduleStates<States> {
-    let mut states = ScheduleStates::new(States::StateA);
-
-    states
-        .with_state_enter(States::StateA)
-        .add_system(enter_state_a);
-    states
-        .with_state_update(States::StateA)
-        .add_system(update_state_a)
-        .add_system(change_state_a_to_b);
-    states
-        .with_state_exit(States::StateA)
-        .add_system(exit_state_a);
-
-    states
-        .with_state_enter(States::StateB)
-        .add_system(enter_state_b);
-    states
-        .with_state_update(States::StateB)
-        .add_system(update_state_b)
-        .add_system(change_state_b_to_a);
-    states
-        .with_state_exit(States::StateB)
-        .add_system(exit_state_b);
-
-    states
-}
-
-fn update_state_a() {
-    println!("update state a");
-}
-
-fn enter_state_a() {
-    println!("enter state a");
-}
-
 // change state every third run of this system
 // this shows that exit/enter/update all run on the same tick
+// use `ResMut<NextState<States>>` to change the state
 fn change_state_a_to_b(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
     *count += 1;
     if *count > 2 {
+        // call set to change the state, the state will be applied the next
+        // time the state `driver` is called or if the state is changed from within the state
+        // like it is here the state will change once the current schedule is done running
         next_state.set(States::StateB);
         *count = 0;
     }
-}
-
-fn exit_state_a() {
-    println!("exit state a");
-}
-
-fn update_state_b() {
-    println!("update state b");
-}
-
-fn enter_state_b() {
-    println!("enter state b");
 }
 
 fn change_state_b_to_a(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
@@ -84,8 +62,4 @@ fn change_state_b_to_a(mut next_state: ResMut<NextState<States>>, mut count: Loc
         next_state.set(States::StateA);
         *count = 0;
     }
-}
-
-fn exit_state_b() {
-    println!("exit state b");
 }
