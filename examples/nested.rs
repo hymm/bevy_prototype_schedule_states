@@ -7,10 +7,10 @@ use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates, StatePlu
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugin(StatePlugin::<GameState>::default())
-        .insert_resource(build_game_states())
-        .add_plugin(StatePlugin::<PlayingState>::default())
-        .insert_resource(build_playing_states())
+        .add_plugin(StatePlugin::new(GameState::StartMenu))
+        .insert_resource(get_game_state_schedules())
+        .add_plugin(StatePlugin::new(PlayingState::Running))
+        .insert_resource(get_playing_state_schedules())
         .add_system(
             driver::<GameState>
                 .exclusive_system()

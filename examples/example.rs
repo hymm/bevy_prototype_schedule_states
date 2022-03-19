@@ -4,7 +4,7 @@ use bevy_prototype_schedule_states::{driver, NextState, ScheduleStates, StatePlu
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugin(StatePlugin::<States>::default())
+        .add_plugin(StatePlugin::<States>::new(States::StateA))
         .insert_resource(setup_states())
         .add_system(
             driver::<States>
