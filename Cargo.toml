@@ -3,7 +3,7 @@ name = "bevy_prototype_schedule_states"
 categories = ["game-engines"]
 description = "Bevy plugin for states as schedules"
 keywords = ["game", "bevy"]
-version = "0.1.0-beta.0"
+version = "0.1.0-beta.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Mike Hsu <mike.hsu@gmail.com"]
@@ -14,6 +14,9 @@ documentation = "https://docs.rs/hymm/bevy_prototype_schedule_states"
 
 [dependencies]
 bevy = { version = "0.6", default-features = false}
+
+[dev-dependencies]
+bevy = "0.6"
 
 [[example]]
 name = "example"
