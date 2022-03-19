@@ -20,8 +20,12 @@ fn main() {
         )
         // configure PlayingState
         .add_plugin(StatePlugin::new(PlayingState::Running))
+        .add_system_to_state_enter(PlayingState::Running, || println!("enter running"))
         .add_system_to_state_update(PlayingState::Running, || println!("running"))
+        .add_system_to_state_exit(PlayingState::Running, || println!("exit running"))
+        .add_system_to_state_enter(PlayingState::Paused, || println!("enter paused"))
         .add_system_to_state_update(PlayingState::Paused, || println!("paused"))
+        .add_system_to_state_exit(PlayingState::Paused, || println!("exit paused"))
         // `add_nested_driver_to_state` adds the driver to the update state
         // and adds systems that fire on enter and on exit for the current `PlayingState`
         // when `GameState::Playing` is entered or exited respectively
