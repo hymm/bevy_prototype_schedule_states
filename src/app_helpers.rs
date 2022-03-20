@@ -7,7 +7,7 @@ use std::hash::Hash;
 use crate::ScheduleStates;
 
 pub trait AppStateHelpers {
-    fn add_system_to_state_update<S, Params>(
+    fn add_system_to_update<S, Params>(
         &mut self,
         state: S,
         system: impl IntoSystemDescriptor<Params>,
@@ -15,7 +15,7 @@ pub trait AppStateHelpers {
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static;
 
-    fn add_system_to_state_enter<S, Params>(
+    fn add_system_to_enter<S, Params>(
         &mut self,
         state: S,
         system: impl IntoSystemDescriptor<Params>,
@@ -23,7 +23,7 @@ pub trait AppStateHelpers {
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static;
 
-    fn add_system_to_state_exit<S, Params>(
+    fn add_system_to_exit<S, Params>(
         &mut self,
         state: S,
         system: impl IntoSystemDescriptor<Params>,
@@ -31,15 +31,15 @@ pub trait AppStateHelpers {
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static;
 
-    fn add_system_set_to_state_update<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
+    fn add_system_set_to_update<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static;
 
-    fn add_system_set_to_state_enter<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
+    fn add_system_set_to_enter<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static;
 
-    fn add_system_set_to_state_exit<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
+    fn add_system_set_to_exit<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static;
 
@@ -50,7 +50,7 @@ pub trait AppStateHelpers {
 }
 
 impl AppStateHelpers for App {
-    fn add_system_to_state_update<S, Params>(
+    fn add_system_to_update<S, Params>(
         &mut self,
         state: S,
         system: impl IntoSystemDescriptor<Params>,
@@ -67,7 +67,7 @@ impl AppStateHelpers for App {
         self
     }
 
-    fn add_system_to_state_enter<S, Params>(
+    fn add_system_to_enter<S, Params>(
         &mut self,
         state: S,
         system: impl IntoSystemDescriptor<Params>,
@@ -84,7 +84,7 @@ impl AppStateHelpers for App {
         self
     }
 
-    fn add_system_to_state_exit<S, Params>(
+    fn add_system_to_exit<S, Params>(
         &mut self,
         state: S,
         system: impl IntoSystemDescriptor<Params>,
@@ -101,7 +101,7 @@ impl AppStateHelpers for App {
         self
     }
 
-    fn add_system_set_to_state_update<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
+    fn add_system_set_to_update<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static,
     {
@@ -114,7 +114,7 @@ impl AppStateHelpers for App {
         self
     }
 
-    fn add_system_set_to_state_enter<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
+    fn add_system_set_to_enter<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static,
     {
@@ -127,7 +127,7 @@ impl AppStateHelpers for App {
         self
     }
 
-    fn add_system_set_to_state_exit<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
+    fn add_system_set_to_exit<S>(&mut self, state: S, system_set: SystemSet) -> &mut App
     where
         S: Copy + Clone + Send + Sync + Eq + Hash + 'static,
     {

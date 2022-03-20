@@ -12,22 +12,22 @@ fn main() {
         .add_plugin(StatePlugin::<States>::new(States::StateA))
         // importing the `AppStateHelpers` trait adds builder methods on app to
         // configure running systems on the states
-        .add_system_to_state_enter(States::StateA, || println!("enter state a"))
-        .add_system_set_to_state_update(
+        .add_system_to_enter(States::StateA, || println!("enter state a"))
+        .add_system_set_to_update(
             States::StateA,
             SystemSet::new()
                 .with_system(|| println!("update state a"))
                 .with_system(change_state_a_to_b),
         )
-        .add_system_to_state_exit(States::StateA, || println!("exit state a"))
-        .add_system_to_state_enter(States::StateB, || println!("enter state b"))
-        .add_system_set_to_state_update(
+        .add_system_to_exit(States::StateA, || println!("exit state a"))
+        .add_system_to_enter(States::StateB, || println!("enter state b"))
+        .add_system_set_to_update(
             States::StateB,
             SystemSet::new()
                 .with_system(|| println!("update state b"))
                 .with_system(change_state_b_to_a),
         )
-        .add_system_to_state_exit(States::StateB, || println!("exit state b"))
+        .add_system_to_exit(States::StateB, || println!("exit state b"))
         .add_system(
             driver::<States>
                 .exclusive_system()

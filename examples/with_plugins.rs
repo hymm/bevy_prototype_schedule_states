@@ -28,13 +28,13 @@ enum States {
 struct StateAPlugin;
 impl Plugin for StateAPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_state_update(States::StateA, || println!("update state a"));
+        app.add_system_to_update(States::StateA, || println!("update state a"));
     }
 }
 
 struct StateBPlugin;
 impl Plugin for StateBPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_state_update(States::StateB, || println!("update state b"));
+        app.add_system_to_update(States::StateB, || println!("update state b"));
     }
 }
