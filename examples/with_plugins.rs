@@ -1,9 +1,10 @@
 /// This example shows that the builders are compatible with plugins
 use bevy::{
-    prelude::{App, Plugin, IntoExclusiveSystem, ExclusiveSystemDescriptorCoercion},
-    DefaultPlugins, core::FixedTimestep,
+    core::FixedTimestep,
+    prelude::{App, ExclusiveSystemDescriptorCoercion, IntoExclusiveSystem, Plugin},
+    DefaultPlugins,
 };
-use bevy_prototype_schedule_states::{AppStateHelpers, StatePlugin, driver};
+use bevy_prototype_schedule_states::{driver, AppStateHelpers, StatePlugin};
 
 fn main() {
     App::new()

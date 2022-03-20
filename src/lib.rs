@@ -32,7 +32,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use bevy::{ecs::system::SystemState, prelude::*};
+    use bevy::prelude::*;
 
     use super::*;
 
