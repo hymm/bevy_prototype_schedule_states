@@ -10,6 +10,14 @@ fn main() {
         // on the state.  Failing to do so will cause a panic as the `ScheduleStates`
         // resource will not be available
         .add_plugin(StatePlugin::<States>::new(States::StateA))
+        // add the state driver into your main schedule whereever you want it to be
+        // You can add a FixedTimestep run criteria onto the driver to run all systems
+        // inside the state at a fixed timestep.
+        .add_system(
+            driver::<States>
+                .exclusive_system()
+                .with_run_criteria(FixedTimestep::step(1.0)),
+        )
         // importing the `AppStateHelpers` trait adds builder methods on app to
         // configure running systems on the states
         .add_system_to_enter(States::StateA, || println!("enter state a"))
@@ -28,14 +36,10 @@ fn main() {
                 .with_system(change_state_b_to_a),
         )
         .add_system_to_exit(States::StateB, || println!("exit state b"))
-        .add_system(
-            driver::<States>
-                .exclusive_system()
-                .with_run_criteria(FixedTimestep::step(1.0)),
-        )
         .run();
 }
 
+// States are typically an simple enum and need some traits defined to work properly
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 enum States {
     StateA,
@@ -44,7 +48,7 @@ enum States {
 
 // change state every third run of this system
 // this shows that exit/enter/update all run on the same tick
-// use `ResMut<NextState<States>>` to change the state
+// uses `ResMut<NextState<States>>` to change the state
 fn change_state_a_to_b(mut next_state: ResMut<NextState<States>>, mut count: Local<u32>) {
     *count += 1;
     if *count > 2 {
