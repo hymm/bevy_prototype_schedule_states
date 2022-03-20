@@ -5,6 +5,11 @@ use std::hash::Hash;
 pub use app_helpers::AppStateHelpers;
 use bevy::prelude::{App, Plugin};
 pub use state_schedule::{driver, NextState, ScheduleStates};
+
+/// This adds the `NextState` and `ScheduleStates` resources to Bevy.
+/// Drivers for the states should be configured separately. The driver
+/// is configured separately since when the state changes and is run
+/// should be user configurable.
 pub struct StatePlugin<S> {
     initial_state: S,
 }
